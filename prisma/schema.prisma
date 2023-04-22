@@ -1,0 +1,81 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Household {
+xdt
+}
+
+model HouseholdHasUser {
+  @@id([householdId, userId])
+  householdId   String
+  household     Household @relation(fields: [householdId], references: [id])
+  userId        String
+  user          User      @relation(fields: [userId], references: [id])
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model User {
+  id            String  @default(cuid()) @id
+  email         String  @unique
+  password      String
+  name          String?
+  households    HouseholdHasUser[]
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model Recipe {
+  id            String   @id @default(cuid())
+  name          String
+  description   String
+  rating        Int
+  householdId   String
+  household     Household @relation(fields: [householdId], references: [id])
+  recipeEntries RecipeEntry[]
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model RecipeEntry {
+  id            String   @id @default(cuid())
+  amount        Float
+  recipeId      String
+  recipe        Recipe   @relation(fields: [recipeId], references: [id])
+  itemId        String
+  item          Item     @relation(fields: [itemId], references: [id])
+  unitId        String
+  unit          Unit     @relation(fields: [unitId], references: [id])
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model Item {
+  id            String   @id @default(cuid())
+  name          String
+  defaultUnitId String
+  defaultUnit   Unit     @relation(fields: [defaultUnitId], references: [id])
+  recipeEntries RecipeEntry[]
+  householdId   String
+  household     Household @relation(fields: [householdId], references: [id])
+}
+
+model Unit {
+  id            String   @id @default(cuid())
+  name          String
+  abbreviation  String
+  type          String
+  recipeEntries RecipeEntry[]
+  recipeItems   Item[]
+  householdId   String
+  household     Household @relation(fields: [householdId], references: [id])
+}
